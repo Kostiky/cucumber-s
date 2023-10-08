@@ -1,0 +1,46 @@
+#include <OLED_I2C.h>
+#include <RH_ASK.h>
+#include <SPI.h>
+
+OLED myOLED(A4, A5, A4);
+extern uint8_t RusFont[];
+extern uint8_t SmallFont[];
+int wifi = 15;
+
+RH_ASK rf_driver;
+
+void setup()
+{
+  myOLED.begin();
+  rf_driver.init();
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  uint8_t buf[12];
+  uint8_t buflen = sizeof(buf);
+if (rf_driver.recv(buf, &buflen))
+{
+  Serial.print("Message Received: ");
+  Serial.println((char*)buf);
+
+  // Удаление последних 4 значений
+  if (buflen >= 0) {
+    buflen -= 0;
+    buf[buflen] = '\0'; // Добавьте эту строку для обрезки строки
+  } else {
+    buflen = 0;
+  }
+  
+
+  myOLED.clrScr();
+  myOLED.setFont(RusFont);
+  myOLED.print("---------------------", CENTER, 0);
+  myOLED.setFont(SmallFont);
+  myOLED.print("Received: ", LEFT, 25);
+  myOLED.print((char*)buf,LEFT, 35);
+  myOLED.print("---------------------", CENTER, 52);
+  myOLED.update();
+}
+}
